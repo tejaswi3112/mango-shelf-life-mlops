@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mango Shelf-Life Predictor</title>
+<style>
+:root{--green:#176b45;--pale:#edf7f0;--ink:#19352a}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#edf7f0,#fff8e7);color:var(--ink)}header{background:var(--green);color:white;padding:26px max(22px,calc((100% - 1000px)/2))}header h1{margin:0 0 8px;font-size:27px}header p{margin:0;opacity:.9}.wrap{max-width:1000px;margin:30px auto;padding:0 18px}.card{background:white;border-radius:16px;padding:24px;box-shadow:0 8px 30px #153b2414}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field label{display:block;font-weight:700;font-size:14px;margin-bottom:7px}.field input,.field select{width:100%;padding:12px;border:1px solid #cbd9cf;border-radius:8px;font-size:15px}.hint{font-size:12px;color:#64766b;margin-top:5px}button{margin-top:20px;background:var(--green);border:0;color:white;padding:13px 22px;border-radius:9px;font-weight:700;font-size:15px;cursor:pointer}button:hover{background:#105536}.result{display:none;margin-top:20px;padding:18px;border-radius:12px;background:var(--pale)}.days{font-size:34px;font-weight:800;color:var(--green)}.error{color:#a12626}.foot{font-size:12px;color:#64766b;margin:18px 2px}@media(max-width:650px){.grid{grid-template-columns:1fr}header h1{font-size:22px}}
+</style></head>
+<body><header><h1>🥭 Mango Shelf-Life Predictor</h1><p>Estimate remaining marketable shelf life for incoming mango shipments</p></header>
+<div class="wrap"><div class="card"><h2>Shipment conditions</h2><p>Enter the measured shipment details below.</p>
+<form id="predictForm"><div class="grid">
+<div class="field"><label>Harvest maturity index (0–1)</label><input name="harvest_maturity_index" type="number" min="0" max="1" step="0.01" value="0.72" required></div>
+<div class="field"><label>Pulp temperature (°C)</label><input name="pulp_temperature_c" type="number" min="5" max="45" step="0.1" value="22.5" required></div>
+<div class="field"><label>Sweetness (°Brix)</label><input name="brix" type="number" min="5" max="25" step="0.1" value="14.2" required></div>
+<div class="field"><label>Bruising (%)</label><input name="bruising_percentage" type="number" min="0" max="100" step="0.1" value="3.5" required></div>
+<div class="field"><label>Transportation duration (hours)</label><input name="transport_duration_hours" type="number" min="0" max="120" step="0.1" value="12" required></div>
+<div class="field"><label>Cooling delay (hours)</label><input name="cooling_delay_hours" type="number" min="0" max="48" step="0.1" value="2" required></div>
+<div class="field"><label>Packaging type</label><select name="packaging_type"><option value="ventilated_crate">Ventilated crate</option><option value="corrugated_box">Corrugated box</option><option value="plastic_crate">Plastic crate</option></select></div>
+</div><button type="submit">Predict remaining shelf life</button></form>
+<div id="result" class="result" aria-live="polite"><div>Estimated remaining marketable shelf life</div><div class="days" id="days"></div><div id="modelnote"></div></div>
+<div class="foot">Academic demonstration using synthetic training data. Do not use for commercial export decisions without validation against real shipment and marketability records. <br>API documentation: <a href="/docs">/docs</a></div></div></div>
+<script>
+document.getElementById('predictForm').addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget;const payload=Object.fromEntries(new FormData(form).entries());for(const k of Object.keys(payload)){if(k!=='packaging_type')payload[k]=Number(payload[k]);}const box=document.getElementById('result');box.style.display='block';document.getElementById('days').textContent='Calculating…';document.getElementById('modelnote').textContent='';try{const res=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json();if(!res.ok)throw new Error(JSON.stringify(data.detail||data));document.getElementById('days').textContent=data.estimated_remaining_shelf_life_days+' days';document.getElementById('modelnote').textContent='Model: '+data.model+' · '+data.note;}catch(err){document.getElementById('days').textContent='Prediction failed';document.getElementById('modelnote').className='error';document.getElementById('modelnote').textContent=err.message;}});
+</script></body></html>
