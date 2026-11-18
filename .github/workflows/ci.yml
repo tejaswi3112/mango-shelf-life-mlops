@@ -1,0 +1,23 @@
+name: Mango MLOps CI
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Generate versioned datasets and features
+        run: |
+          python -m src.generate_data
+          python -m src.features
+      - name: Train and register model
+        run: python -m src.train
+      - name: Test application and API
+        run: pytest -q
