@@ -1,5 +1,5 @@
 import pandas as pd
-from src.config import FEATURES, TARGET, DATA_DIR, FEATURE_DIR
+from config import FEATURES, TARGET, DATA_DIR, FEATURE_DIR
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
