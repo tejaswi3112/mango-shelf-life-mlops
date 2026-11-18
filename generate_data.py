@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from src.config import DATA_DIR
+from config import DATA_DIR
 
 RNG = np.random.default_rng(42)
 PACKAGING = ["ventilated_crate", "corrugated_box", "plastic_crate"]
